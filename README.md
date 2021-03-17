@@ -1,14 +1,13 @@
 # Auto-IA Workshop IJK HMTM Hannover 2021
 
 
-Ablauf Auto-IA Workshop IJK Hannover
-==============================
+## Ablauf Auto-IA Workshop IJK Hannover
 
 Lernziele:
-    - Dictionary Analyse: 
+- Dictionary Analyse: 
         - fremdes Diktionär benutzen
         - eigenes Diktionär aufbauen 
-    - Topic Modeling:
+- Topic Modeling:
         - Modell berechnen 
         - Modell evaluieren
         - Modell interpretieren
