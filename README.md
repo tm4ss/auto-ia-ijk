@@ -38,8 +38,8 @@ Tag 4: Arbeit mit eigenen Daten
 
 Lernziele:
 - Dictionary Analyse: 
-        - fremdes Diktionär benutzen
-        - eigenes Diktionär aufbauen 
+ - fremdes Diktionär benutzen
+ - eigenes Diktionär aufbauen 
 - Topic Modeling:
         - Modell berechnen 
         - Modell evaluieren
@@ -58,7 +58,7 @@ Mögliche Fragestellungen für den Corona-Datensatz:
 - Wie wird die die Regierungsarbeit von Jens Spahn im Verlauf der Pandemie öffentlich bewertet? (Sentiment dictionary vs. Klassifikation), https://rdrr.io/github/kbenoit/quanteda.dictionaries/man/data_dictionary_Rauh.html
 - Alternativlosigkeitsrhetorik
 
-Breakout Räume:
+Breakout Räume (Das werden wir je nach Bedarf entscheiden und geeignete Gruppen identifizieren):
 - entlang thematischer Filterung mit Topic Models?
 - entlang Methoden?
     - dictionaries
