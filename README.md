@@ -4,7 +4,7 @@
 ## Ablauf Auto-IA Workshop IJK Hannover
 
 Tag 1: Einführung + vorbereitete Übungen
-- 09:00 - 10:00: Vorstellungsrunde, Intro VS
+- 09:00 - 10:00: Vorstellungsrunde, Beispielstudie "Verfassungsschutzberichterstattung"
 - 10:15 - 11:15: VL Preprocessing + Frequenzanalyse + Topic Model Intro
 - 11:30 - 12:30: erste Diskussion zu möglichen Fragen an das Korpus
 - MIttagspause
