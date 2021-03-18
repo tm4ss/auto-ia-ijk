@@ -52,6 +52,7 @@ Lernziele:
 Mögliche Fragestellungen für den Corona-Datensatz:
 
 - Wie verläuft die Konjunktur von Lockerungen und Lockdown in der Berichterstattung?
+- Welche Schlüsselereignisse / neue Subthemen werden im Pandemieverlauf sichtbar (keyterms zum Vormonat, LDA)
 - In welchen Themen sind eher Männer bzw. Frauen repräesentiert? (Dictionary mit männl. / weibl. vornamen)
 - Welche Länder stehen im Verlauf der Pandemie im Fokus der Berichterstattung? (Dictionary mit Ländernamen)
 - Wie verändert sich das Themenvokabular, wenn Artikel entweder Hendrik Streek oder Christan Drosten zitieren? (STM mit  topical content covariate)
