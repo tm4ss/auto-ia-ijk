@@ -2,7 +2,7 @@ options(stringsAsFactors = F)
 
 # read csv corpus
 
-corona_artikel <- read.csv2("data/articles_coronaberichterstattung_coronabezug_v1.csv", encoding = "UTF-8")
+corona_artikel <- read.csv2("data/articles_coronaberichterstattung_coronabezug_v10.csv", encoding = "UTF-8")
 
 # print 1st article
 corona_artikel[1, ]
@@ -17,13 +17,14 @@ table(corona_artikel$media_name)
 # - hint: ggplot2 package + geom_bar/geom_line functions
 
 # plot a line plot version of the previous plot with different lines for each media type
-# - hint: use the group or fill paraemeter of the ggplot function
-
-# for which media do we have comments in the corpus
+# - hint: use the group or fill parameter of the ggplot function
 
 
-# how many comments per media do we have and which is the most commented article?
+# optional: for which media do we have comments in the corpus
+# optional: how many comments per media do we have and which is the most commented article?
 
 
 # create a quanteda corpus object, preprocess tokens, and create a dfm
 
+
+# how many words containing "covid" or "corona" do you count?
