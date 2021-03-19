@@ -74,3 +74,12 @@ json <- createJSON(
   term.frequency = colSums(corona.corpus.tokens.dfm))
 # Render JSON to html output (convert json data to UTF-8 explicitly, sonst Umlautchaos!)
 serVis(iconv(json, to="UTF-8"), out.dir = paste0("./ldaviz_K", K), open.browser = TRUE)
+
+
+# Tasks:
+# - run the topic model for different K
+# - interpret the resulting topics with your colleagues
+#   - look at the top terms of each topic (vary the lambda parameter in ldavis)
+#   - select and read most representative documents per topic
+# - write topic labels into csv (topic_id,topic_label)
+

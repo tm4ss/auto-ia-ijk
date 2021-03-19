@@ -157,3 +157,24 @@ ggplot(sentiment_df, aes(x = variable, y = value, group = medium)) +
 # - sentences: identify sentences mentioning (Jens) Spahn, sentiment in different media over time
 # - sentiments per topic?
 
+
+
+# My own dictionary
+# -----------------
+
+corona_dict <- dictionary(list(
+  corona = vocabulary_corona,
+  covid = vocabulary_covid,
+  conspiracy = vocabulary_conspiracy
+))
+
+dfm_dict <- dfm(corpus_tokens, dictionary = corona_dict)
+
+head(dfm_dict)
+
+colSums(dfm_dict)
+
+# Task: 
+# - Create your own dictionary, e.g. to measure mentions of known scientists
+# - measure their absolute frequency over time
+# - create a normalized version of the frequency measure
