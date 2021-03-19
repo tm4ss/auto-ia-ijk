@@ -16,8 +16,23 @@ table(corona_artikel$media_name)
 # plot number of articles over time (e.g. line plot, or bar plot with days, weeks, or months)
 # - hint: ggplot2 package + geom_bar/geom_line functions
 
+require(lubridate)
+
+corona_artikel <- read.csv2("data/articles_coronaberichterstattung_coronabezug_v10.csv", encoding = "UTF-8") %>% 
+  mutate(article_date = ymd(dmy(article_date))) %>%
+  mutate(week = floor_date(as.Date(article_date,"%d.%m.%Y"), "week"))
+
+corona_artikel %>% 
+  group_by(media_type, week) %>% 
+  summarize(anzahl = n()) %>% 
+  ggplot(aes(x = week, y = anzahl)) +
+  geom_line(aes(color = media_type))
+
+
 # plot a line plot version of the previous plot with different lines for each media type
 # - hint: use the group or fill parameter of the ggplot function
+
+
 
 
 # optional: for which media do we have comments in the corpus
@@ -28,3 +43,5 @@ table(corona_artikel$media_name)
 
 
 # how many words containing "covid" or "corona" do you count?
+
+
