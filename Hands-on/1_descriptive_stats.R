@@ -64,8 +64,8 @@ ggplot(week_count, aes(x = week, y = sum_article)) +
 
 
 # create a quanteda corpus object, preprocess tokens, and create a dfm
-lemma_data <- read.csv("resources/baseform_german_web_2012.csv", encoding = "UTF-8", sep = ",",header = T)
-lemma_data %<>% mutate(word = tolower(word)) %>% mutate(base_form = tolower(base_form))
+lemma_data <- read.csv("resources/word_baseform_mwu_fixed.txt", encoding = "UTF-8", sep = ";",header = T)
+# lemma_data %<>% mutate(word = tolower(word)) %>% mutate(base_form = tolower(base_form))
 
 corona.corpus <- corpus(corona_artikel$article_text, docvars = corona_artikel %>% select(-article_text))
 

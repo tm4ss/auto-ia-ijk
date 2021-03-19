@@ -1,17 +1,16 @@
 options(stringsAsFactors = FALSE)
 require(quanteda)
 library(dplyr)
+library(tidyverse)
 
 textdata <- read.csv("data/articles_coronaberichterstattung_coronabezug_v10.csv", sep = ";", encoding = "UTF-8")
 
 # we add some more metadata columns to the data frame
 
-textdata$article_date
-textdata$year <- substr(textdata$article_date, 7, 12)
-textdata$month <- paste0(substr(textdata$article_date, 7, 12), "-", substr(textdata$article_date, 4, 5))
+textdata <- textdata %>% mutate(month = floor_date(as.Date(article_date, "%d.%m.%Y"), "month"))
 
 # some cleaning
-textdata$article_text <- stringi::stri_replace_all_regex(textdata$article_text, "(\\p{L}[.!?])(\\p{Lu})", "$1 $2")
+textdata$article_text <- stringi::stri_replace_all_regex(textdata$article_text, "(\\p{Ll}[.!?])(\\p{Lu})", "$1 $2")
 
 corona_corpus <- corpus(textdata$article_text, docnames = textdata$id)
 
@@ -24,7 +23,7 @@ sw_upper <- paste(toupper(substring(sw, 1,1)), substring(sw, 2), sep="")
 sw_extended <- c(sw, sw_upper)
 corpus_tokens <- corona_corpus %>% 
   tokens(remove_punct = TRUE, remove_numbers = TRUE, remove_symbols = TRUE) %>% 
-  tokens_replace(lemma_data$V1, lemma_data$V2, valuetype = "fixed") %>% 
+  tokens_replace(lemma_data$V1, lemma_data$V2, valuetype = "fixed", case_insensitive = F) %>% 
   tokens_remove(pattern = sw_extended)
 
 print(paste0("1: ", substr(paste(corpus_tokens[1],collapse = " "), 0, 400), '...'))
@@ -32,16 +31,61 @@ print(paste0("1: ", substr(paste(corpus_tokens[1],collapse = " "), 0, 400), '...
 DTM <- corpus_tokens %>% 
   dfm(tolower = F) 
 
+# check most frequent words
+wordlist <- data.frame(
+  word = colnames(DTM),
+  freqs = colSums(DTM),
+  row.names = NULL
+)
+
+wordlist <- wordlist %>% 
+  arrange(desc(freqs)) %>% 
+  mutate(rank = row_number())
+head(wordlist, 25)
+
+
+# problemfälle: 
+# - SALZGITTERNatürlich
+# - case insensitive token_replace
+
+# re-order the wordlist by decreasing frequency &
+# show the most frequent words
+
+# plot word frequencies
+ggplot(wordlist, aes(x = rank, y = freqs)) +
+  geom_line() +
+  ggtitle("Rank frequency plot") + 
+  xlab("Rank") + 
+  ylab("Frequency")
+
+
+# plot with log scales
+ggplot(wordlist, aes(x = rank, y = freqs)) +
+  geom_line() +
+  ggtitle("Rank frequency plot") +
+  scale_x_log10() +
+  scale_y_log10() + 
+  xlab("log-Rank") + 
+  ylab("log-Frequency")
+
+
+# die collocations liste müsste manuell durchgesehen und selektiert werden. da ist zuviel nicht hilfreiches drin
+# collocations <- textstat_collocations(corpus_tokens, min_count = 25)
+# collocations <- collocations[1:250, ]
+# corona.corpus.tokens <- tokens_compound(corpus_tokens, collocations)
+
 vocabulary <- colnames(DTM)
-vocabulary_covid <- vocabulary[grepl("(?i)covid.*", vocabulary, perl = T)]
-vocabulary_corona <- vocabulary[grepl("(?i)corona.*", vocabulary, perl = T)]
+vocabulary_covid <- vocabulary[grepl("(?i)covid", vocabulary, perl = T)]
+vocabulary_corona <- vocabulary[grepl("(?i)corona", vocabulary, perl = T)]
 
 # corona
 top_corona <- names(sort(colSums(DTM[, vocabulary_corona]), decreasing = T))[1:5]
 terms_to_observe <- top_corona
 DTM_reduced <- as.matrix(DTM[, terms_to_observe])
 counts_per_month <- aggregate(DTM_reduced, by = list(month = textdata$month), sum)
-counts_df <- reshape2::melt(counts_per_month)
+
+counts_df <- reshape2::melt(counts_per_month, id.vars = "month")
+
 ggplot(counts_df, aes(x = month, y = value, group = variable)) +
   geom_line(aes(color = variable)) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
@@ -50,11 +94,21 @@ ggplot(counts_df, aes(x = month, y = value, group = variable)) +
 top_covid <- names(sort(colSums(DTM[, vocabulary_covid]), decreasing = T))[1:5]
 DTM_reduced <- as.matrix(DTM[, top_covid])
 counts_per_month <- aggregate(DTM_reduced, by = list(month = textdata$month), sum)
-counts_df <- reshape2::melt(counts_per_month)
+counts_df <- reshape2::melt(counts_per_month, id.vars = "month")
 ggplot(counts_df, aes(x = month, y = value, group = variable)) +
   geom_line(aes(color = variable)) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
+
+# verschwörung
+vocabulary_conspiracy <- vocabulary[grepl("(?i)verschwörung", vocabulary, perl = T)]
+top_conspiracy <- names(sort(colSums(DTM[, vocabulary_conspiracy]), decreasing = T))[1:5]
+DTM_reduced <- as.matrix(DTM[, top_conspiracy])
+counts_per_month <- aggregate(DTM_reduced, by = list(month = textdata$month), sum)
+counts_df <- reshape2::melt(counts_per_month, id.vars = "month")
+ggplot(counts_df, aes(x = month, y = value, group = variable)) +
+  geom_line(aes(color = variable)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
 
 # SENTIMENT
@@ -62,6 +116,11 @@ ggplot(counts_df, aes(x = month, y = value, group = variable)) +
 
 # install package
 # devtools::install_github("kbenoit/quanteda.dictionaries") 
+
+# We can use a sentiment dict by 
+# Christian Rauh (2018) Validating a sentiment dictionary for German political 
+# language—a workbench note, Journal of Information Technology & Politics, 
+# 15:4, 319-343, DOI: 10.1080/19331681.2018.1485608  
 
 
 # tokenize texts for Rauh dictionary
@@ -86,9 +145,15 @@ dfm_complete <- corona_corpus %>%
 article_lengths <- rowSums(dfm_complete)
 
 counts_per_medium <- aggregate(as.matrix(dfm_sentiment), by = list(medium = textdata$media_name), sum)
-length_per_medium <- aggregate(article_lengths, by = list(medium = textdata$media_name), sum)
-counts_per_medium[, 2:5] <- counts_per_medium[, 2:5] / length_per_medium$x
+tokens_per_medium <- aggregate(article_lengths, by = list(medium = textdata$media_name), sum)
+counts_per_medium[, 2:5] <- counts_per_medium[, 2:5] / tokens_per_medium$x
 sentiment_df <- reshape2::melt(counts_per_medium)
 
 ggplot(sentiment_df, aes(x = variable, y = value, group = medium)) +
   geom_bar(stat = "identity", aes(fill = medium), position = "dodge")
+
+
+# what else to do with sentiments?
+# - sentences: identify sentences mentioning (Jens) Spahn, sentiment in different media over time
+# - sentiments per topic?
+
