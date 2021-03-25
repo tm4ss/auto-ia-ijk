@@ -3,17 +3,14 @@ options(stringsAsFactors = F)
 pacman::p_load(tidyverse, janitor, quanteda, topicmodels, LDAvis)
 # read csv corpus
 
-corona_artikel <- load(file = "data/corona_artikel.rda")
+corona_artikel <- get(load(file = "data/corona_artikel.rda"))
 
 # load dfm
 load("data/dfm_50_iter_500.RData")
 
-
-# remove empty docs
-sel_idx <- rowSums(corona.corpus.tokens.dfm) > 0
-corona.corpus.tokens.dfm <- corona.corpus.tokens.dfm[sel_idx, ]
-corona_artikel <- corona_artikel[sel_idx, ]
-
+corona_artikel$quanteda_doc_id <- paste0("text", corona_artikel$id)
+corona_artikel <- corona_artikel %>%
+  filter(quanteda_doc_id %in% rownames(corona.corpus.tokens.dfm))
 
 # load topic model with 50 K
 load("data/topicmodel_50_iter_500.RData")
@@ -61,4 +58,13 @@ colnames(theta) <- topic_names$label
 # - unterschieden sich die Verlaufskurven für A und B?
 # Korrelationsanalysen
 # - Welche Topics laufen parallel / konträr / abwechselnd?
+
+
+
+
+
+# Vergleich nach Medientypen
+threshold <- 0.3
+bin_theta <- theta < 
+
 
