@@ -63,8 +63,63 @@ colnames(theta) <- topic_names$label
 
 
 
-# Vergleich nach Medientypen
-threshold <- 0.3
-bin_theta <- theta < 
+# Zeitreihe
+threshold <- 0.2
+bin_theta <- theta >= threshold
+months <- as.character(corona_artikel$month)
+topic_sums <- aggregate(as.matrix(bin_theta), by = list(month = months), sum)
+n_total <- table(as.character(corona_artikel$month))
+topic_sums[, 2:ncol(topic_sums)] <- topic_sums[, 2:ncol(topic_sums)] / n_total
+counts_df_melted <- reshape2::melt(topic_sums, id.vars = "month")
 
+topic_selection <- topic_names$label[1:5]
+counts_df <- counts_df_melted[counts_df_melted$variable %in% topic_selection, ]
+
+ggplot(counts_df, aes(x = month, y = value, group = variable)) +
+  geom_line(aes(color = variable)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+
+
+
+# Auswahl zur Darstellung
+
+months_int <- factor(unique(months))
+
+allSlopes <- apply(topic_sums[, 2:ncol(topic_sums)], 2, FUN = function(x) lm(x ~ as.integer(months_int))$coefficients[[2]])
+
+top_decreasing <- sort(allSlopes, decreasing = F)[1:10]
+top_increasing <- sort(allSlopes, decreasing = T)[1:10]
+
+topic_selection <- names(top_decreasing)
+counts_df <- counts_df_melted[counts_df_melted$variable %in% topic_selection, ]
+
+ggplot(counts_df, aes(x = month, y = value, group = variable)) +
+  geom_line(aes(color = variable)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+
+
+
+# RANK 1
+corona_artikel$primaryTopic <- NA
+for (i in 1:nrow(corona.corpus.tokens.dfm)) {
+  topicsPerDoc <- theta[i, ] # select topic distribution for document i
+  # get first element position from ordered list
+  primaryTopic <- topic_names$label[order(topicsPerDoc, decreasing = TRUE)[1]]
+  corona_artikel$primaryTopic[i] <- primaryTopic
+}
+
+
+
+# Vergleich nach Medientypen
+
+df <- corona_artikel %>%
+  select(month, media_type, primaryTopic) %>%
+  group_by(month, media_type, primaryTopic) %>%
+  summarise(anzahl = n())
+ggplot(df, aes(x = month, y = anzahl, group = media_type)) +
+  geom_line(aes(color = media_type)) +
+  facet_wrap(~primaryTopic) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
